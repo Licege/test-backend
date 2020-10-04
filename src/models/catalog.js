@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Catalog.hasMany(models.Good, {
                 as: 'goods',
+                foreignKey: 'catalog_id',
                 onDelete: 'CASCADE',
             })
         }

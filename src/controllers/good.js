@@ -5,9 +5,9 @@ const Sequelize = require('sequelize')
 const { Op } = Sequelize
 
 async function get(request, response) {
-    await models.Catalog.findByPk(request.params.id)
-        .then(catalog => {
-            response.json(catalog)
+    await models.Good.findByPk(request.params.id)
+        .then(good => {
+            response.json(good)
         })
         .catch(reason => {
             errorHandler(response, reason)
@@ -15,22 +15,51 @@ async function get(request, response) {
 }
 
 async function getAll(request, response) {
-    await models.Catalog.findAll({
-        include: [
-            {
-                models: models.Good,
-                as: 'goods',
-            }
-        ],
-        // attributes: [
-        //     'id',
-        //     'title',
-        //     'description',
-        //     [Sequelize.literal(`(SELECT COUNT(*) FROM Goods)`), 'count_goods'],
-        // ]
+    let q = request.query,
+        search = q.search || '',
+        query
+
+    if (!isNaN(+q.search)) {
+        query = {
+            [Op.or]: [
+                {
+                    [Op.or]: [ { title: { [Op.like]: `${search}%` } }, null ]
+                },
+                {
+                    [Op.or]: [ { brand: { [Op.like]: `${search}%` } }, null ]
+                },
+                {
+                    [Op.or]: [ { model: { [Op.like]: `${search}%` } }, null ]
+                },
+                {
+                    [Op.or]: [ { price: { [Op.eq]: +search } }, null ]
+                },
+            ]
+        }
+    } else {
+        query = {
+            [Op.or]: [
+                {
+                    [Op.or]: [ { title: { [Op.like]: `${search}%` } }, null ]
+                },
+                {
+                    [Op.or]: [ { brand: { [Op.like]: `${search}%` } }, null ]
+                },
+                {
+                    [Op.or]: [ { model: { [Op.like]: `${search}%` } }, null ]
+                },
+            ]
+        }
+    }
+
+    await models.Good.findAll({
+        where: {
+            catalog_id: q.id,
+            ...query,
+        }
     })
-        .then(catalogs => {
-            response.json(catalogs)
+        .then(goods => {
+            response.json(goods)
         })
         .catch(reason => {
             errorHandler(response, reason)
@@ -38,7 +67,7 @@ async function getAll(request, response) {
 }
 
 async function availableTitle(request, response) {
-    await models.Catalog.findOne({
+    await models.Good.findOne({
         where: { title: request.params.title.trim() }
     })
         .then(value => {
@@ -50,11 +79,7 @@ async function availableTitle(request, response) {
 }
 
 async function create(request, response) {
-    const { title, description } = request.body
-    await models.Catalog.create({
-        title,
-        description
-    })
+    await models.Good.create(request.body)
         .then(value => {
             response.json(value)
         })
@@ -64,16 +89,16 @@ async function create(request, response) {
 }
 
 async function update(request, response) {
-    await models.Catalog.update(request.body, {
+    await models.Good.update(request.body, {
         where: {
             id: request.params.id
         },
         fields: [
-            'title', 'description'
+            'title', 'brand', 'model', 'price', 'description'
         ]
     })
         .then(() => {
-            models.Catalog.findByPk(request.params.id)
+            models.Good.findByPk(request.params.id)
                 .then(value => {
                     response.json(value)
                 })
@@ -87,7 +112,7 @@ async function update(request, response) {
 }
 
 async function destroy(request, response) {
-    await models.Catalog.destroy({
+    await models.Good.destroy({
         where: {
             id: request.params.id
         }

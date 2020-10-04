@@ -9,6 +9,7 @@ app.use(bodyParser.json())
 app.use(require('cors')())
 
 app.use('/api/catalogs', require('./routes/catalog'))
+app.use('/api/goods', require('./routes/good'))
 
 if (process.env.NODE_ENV === 'production') {
     app.use('/', express.static(path.join(__dirname, 'build')))

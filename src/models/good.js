@@ -14,19 +14,31 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             field: 'id',
         },
-        catalog_id: DataTypes.INTEGER,
         title: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
             validate: {
                 notEmpty: true,
-            }
+            },
+            defaultValue: '',
         },
-        brand: DataTypes.STRING,
-        model: DataTypes.STRING,
-        cost: DataTypes.INTEGER,
-        description: DataTypes.STRING,
+        brand: {
+            type: DataTypes.STRING,
+            defaultValue: '',
+        },
+        model: {
+            type: DataTypes.STRING,
+            defaultValue: '',
+        },
+        price: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        description: {
+            type: DataTypes.STRING,
+            defaultValue: '',
+        },
     }, {
         sequelize,
         modelName: 'Good',
