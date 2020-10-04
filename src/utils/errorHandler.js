@@ -1,4 +1,5 @@
 module.exports = (response, error) => {
+    console.log(error)
     switch (error.name) {
         case 'SequelizeUniqueConstraintError':
             response.status(400).json({

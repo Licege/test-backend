@@ -54,7 +54,7 @@ async function getAll(request, response) {
 
     await models.Good.findAll({
         where: {
-            catalog_id: q.id,
+            CatalogId: q.id,
             ...query,
         }
     })

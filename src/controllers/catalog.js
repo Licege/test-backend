@@ -2,8 +2,6 @@ const models = require('../sequelize')
 const errorHandler = require('../utils/errorHandler')
 const Sequelize = require('sequelize')
 
-const { Op } = Sequelize
-
 async function get(request, response) {
     await models.Catalog.findByPk(request.params.id)
         .then(catalog => {
@@ -18,16 +16,14 @@ async function getAll(request, response) {
     await models.Catalog.findAll({
         include: [
             {
-                models: models.Good,
-                as: 'goods',
+                model: models.Good,
+                attributes: [],
             }
         ],
-        // attributes: [
-        //     'id',
-        //     'title',
-        //     'description',
-        //     [Sequelize.literal(`(SELECT COUNT(*) FROM Goods)`), 'count_goods'],
-        // ]
+        attributes: {
+            include: [[Sequelize.fn('COUNT', Sequelize.col('Goods.id')), 'count']]
+        },
+        group: [Sequelize.col('Catalog.id')],
     })
         .then(catalogs => {
             response.json(catalogs)

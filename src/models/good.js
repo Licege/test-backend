@@ -3,7 +3,7 @@ const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
     class Good extends Model {
         static associate(models) {
-            Good.belongsTo(models.Catalog)
+            Good.belongsTo(models.Catalog, { targetKey: 'id' })
         }
     }
 
